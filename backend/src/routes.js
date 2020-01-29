@@ -13,6 +13,7 @@ const upload = multer(uploadConfig);
 
 routes.get('/sessions', SessionController.index);
 routes.post('/sessions', SessionController.store);
+routes.delete('/sessions/:email', SessionController.destroy);
 
 routes.get('/spots', SpotController.index);
 routes.post('/spots', upload.single('thumbnail'), SpotController.store);

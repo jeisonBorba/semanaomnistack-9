@@ -22,6 +22,14 @@ module.exports = {
         }
 
         return res.json(user);
+    },
+
+    async destroy(req, res) {
+      const { email } = req.params;
+
+      await User.remove({ email });
+
+      return res.json({ message: "Item deleted successfully"});
     }
 
 };
