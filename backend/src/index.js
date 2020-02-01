@@ -1,7 +1,14 @@
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const path =require('path');
+const path = require('path');
+const http = require('http');
+
+const { setupWebsocket, getConnectedUsers } = require ('./websocket');
+const routes = require('./routes');
+
+const app = express();
+const server = http.Server(app);
 
 const { port, databaseUrl, databaseUser, databaseKey } = require('./config');
 
@@ -10,17 +17,21 @@ mongoose.connect(`mongodb+srv://${databaseUser}:${databaseKey}@${databaseUrl}`, 
     useUnifiedTopology: true
 });
 
-const routes = require('./routes');
+const io = setupWebsocket(server);
 
-const app = express();
+app.use((req, res, next) => {
+    req.io = io;
+    req.connectedUsers = getConnectedUsers();
 
-app.use(cors({
-    origin: 'http://localhost:3000'
-}));
+    return next();
+});
+
+
+app.use(cors());
 app.use(express.json());
 app.use('/files', express.static(path.resolve(__dirname, '..', 'uploads')));
 app.use(routes);
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 })
